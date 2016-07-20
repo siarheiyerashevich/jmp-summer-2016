@@ -1,2 +1,2 @@
 # jmp-summer-2016
-Welcome
+Welcome, Mikalai and Maryana!
