@@ -1,0 +1,19 @@
+group 'com.epam.jmp'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'idea'
+
+sourceCompatibility = 1.7
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.springframework:spring-context:4.3.1.RELEASE'
+    compile 'org.springframework:spring-core:4.3.1.RELEASE'
+    compile 'org.springframework:spring-aop:4.3.1.RELEASE'
+    compile 'org.apache.commons:commons-lang3:3.0'
+
+}
