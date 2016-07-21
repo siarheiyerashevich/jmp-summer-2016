@@ -68,6 +68,7 @@ public class AppMain {
                 System.err.println("PANIC!!!" + ex.getMessage());
             }
         }
+        scanner.close();
     }
 
     private static void uploadFile(final Scanner scanner, final FileShareService fileShareService) throws IOException {
@@ -127,35 +128,37 @@ public class AppMain {
 
         System.out.println(">Which file you want? Enter file number:");
         final Integer fileNumber = scanner.nextInt();
+        if (!allFiles.containsKey(fileNumber)) {
+            System.out.println(">Wrong file number");
+        }
         System.out.println(">Enter path (without file name) for saving:");
-        scanner.reset();
-        final String newPath = scanner.nextLine();
+        final String newPath = scanner.next();
         if (StringUtils.isEmpty(newPath)) {
             System.out.println(">Check file path and come back later");
             return;
         }
-        if (allFiles.containsKey(fileNumber)) {
-            FileOutputStream fos = null;
-            try {
-                final FileDto fileDto = fileShareService.loadFile(allFiles.get(fileNumber).getUuid());
-                System.out.println(MessageFormat.format(">Starting download {0} bytes", fileDto.getData().length));
-                final File newFile = new File(newPath + File.separator + fileDto.getName() + "." + fileDto.getExtension());
-                if (newFile.exists()) {
-                    System.out.println(">You already have this file");
-                    return;
-                } else {
-                    newFile.createNewFile();
-                    fos = new FileOutputStream(newFile);
-                    fos.write(fileDto.getData());
-                    IOUtils.closeQuietly(fos);
-                    System.out.println(">Done. Check " + newFile.getAbsolutePath());
-                }
-            } catch (FileShareException e) {
-                System.out.println(e.getMessage());
-            } finally {
+
+        FileOutputStream fos = null;
+        try {
+            final FileDto fileDto = fileShareService.loadFile(allFiles.get(fileNumber).getUuid());
+            System.out.println(MessageFormat.format(">Starting download {0} bytes", fileDto.getData().length));
+            final File newFile = new File(newPath + File.separator + fileDto.getName() + "." + fileDto.getExtension());
+            if (newFile.exists()) {
+                System.out.println(">You already have this file");
+                return;
+            } else {
+                newFile.createNewFile();
+                fos = new FileOutputStream(newFile);
+                fos.write(fileDto.getData());
                 IOUtils.closeQuietly(fos);
+                System.out.println(">Done. Check " + newFile.getAbsolutePath());
             }
+        } catch (FileShareException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            IOUtils.closeQuietly(fos);
         }
+
     }
 
     private static void printCommandNotFount(final String command) {
