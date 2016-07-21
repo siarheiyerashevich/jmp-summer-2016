@@ -7,19 +7,11 @@ import java.util.Date;
  */
 public class FileDto {
 
-    private Long id;
+    private String uuid;
     private String name;
     private byte[] data;
     private String extension;
     private Date expirationDate;
-
-    public Long getId() {
-        return this.id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getName() {
         return this.name;
@@ -51,5 +43,13 @@ public class FileDto {
 
     public void setExpirationDate(Date expirationDate) {
         this.expirationDate = expirationDate;
+    }
+
+    public String getUuid() {
+        return this.uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 }

@@ -1,6 +1,7 @@
 package com.epam.jmp.fileshare.services;
 
 import com.epam.jmp.fileshare.dto.FileDto;
+import com.epam.jmp.fileshare.exceptions.FileShareException;
 
 import java.util.List;
 
@@ -9,11 +10,9 @@ import java.util.List;
  */
 public interface FileShareService {
 
-    List<FileDto> loadAllFiles();
+    List<FileDto> loadAllFiles() throws FileShareException;
 
-    FileDto loadFile(final Long id);
+    FileDto loadFile(final String uuid) throws FileShareException;
 
-    List<FileDto> loadFilesByExtension(final String extension);
-
-    void saveFile(final byte[] fileData, final String fileName, final String fileExtension);
+    void saveFile(final byte[] fileData, final String fileName, final String fileExtension) throws FileShareException;
 }

@@ -21,6 +21,10 @@ public class FileValidationResult {
         this.success = false;
     }
 
+    public List<String> getErrorMessages() {
+        return this.errorMessages;
+    }
+
     public boolean isSuccess() {
         return this.success;
     }

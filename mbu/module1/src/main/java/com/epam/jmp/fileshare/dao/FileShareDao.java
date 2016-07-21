@@ -1,8 +1,10 @@
 package com.epam.jmp.fileshare.dao;
 
 import com.epam.jmp.fileshare.dto.FileDto;
-import com.epam.jmp.fileshare.dto.FileShareExtension;
+import com.epam.jmp.fileshare.exceptions.FileShareException;
+import com.epam.jmp.fileshare.util.FileShareExtension;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -10,11 +12,9 @@ import java.util.List;
  */
 public interface FileShareDao {
 
-    List<FileDto> loadAllFiles();
+    List<FileDto> loadAllFiles() throws FileShareException;
 
-    FileDto loadFile(final Long id);
+    FileDto loadFile(final String uuid) throws FileShareException;
 
-    List<FileDto> loadFilesByExtension(final FileShareExtension extension);
-
-    void saveFile(final FileDto fileDto);
+    void saveFile(final FileDto fileDto) throws FileShareException;
 }

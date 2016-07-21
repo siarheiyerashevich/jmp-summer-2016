@@ -1,4 +1,6 @@
-package com.epam.jmp.fileshare.dto;
+package com.epam.jmp.fileshare.util;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -26,8 +28,11 @@ public enum FileShareExtension {
     }
 
     public static FileShareExtension getFromString(final String extension) {
+        if (StringUtils.isEmpty(extension)) {
+            throw new IllegalStateException("Where is file extension?");
+        }
         for (final FileShareExtension fileShareExtension : FileShareExtension.values()) {
-            if (fileShareExtension.extensions.contains(extension)) {
+            if (fileShareExtension.extensions.contains(extension.toUpperCase())) {
                 return fileShareExtension;
             }
         }
