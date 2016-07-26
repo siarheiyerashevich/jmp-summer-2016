@@ -7,5 +7,6 @@ import com.epam.jmp.fileshare.validation.model.FileValidationResult;
  */
 public interface FileShareValidator {
 
-    FileValidationResult validate(final byte[] fileData, final String fileName, final String fileExtension);
+    FileValidationResult validate(final byte[] fileData, final String fileName,
+            final String fileExtension);
 }

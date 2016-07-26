@@ -11,7 +11,7 @@ import com.epam.jmp.fileshare.commands.UserCommand;
 import com.epam.jmp.fileshare.dto.FileDto;
 import com.epam.jmp.fileshare.exceptions.FileShareException;
 import com.epam.jmp.fileshare.services.FileShareService;
-import com.epam.jmp.fileshare.util.FileShareConverter;
+import com.epam.jmp.fileshare.util.FileShareFactory;
 
 /**
  * Created by Mikalai_Bunis on 7/26/2016.
@@ -39,8 +39,7 @@ public class UploadFileCommand implements UserCommand {
 
             fis = new FileInputStream(newFile);
             final byte[] fileData = IOUtils.toByteArray(fis);
-            final FileDto fileDto = FileShareConverter.convertToDto(fileData, fileName,
-                    fileExtension);
+            final FileDto fileDto = FileShareFactory.buildDto(fileData, fileName, fileExtension);
             shareService.saveFile(fileDto);
             System.out.println(">Done");
         } catch (FileShareException e) {

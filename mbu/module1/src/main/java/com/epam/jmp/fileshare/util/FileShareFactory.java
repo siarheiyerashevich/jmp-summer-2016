@@ -5,9 +5,11 @@ import com.epam.jmp.fileshare.dto.FileDto;
 /**
  * Created by nbuny on 20.07.2016.
  */
-public class FileShareConverter {
+public class FileShareFactory {
 
-    public static FileDto convertToDto(final byte[] fileData, final String fileName, final String fileExtension) {
+    public static FileDto buildDto(final byte[] fileData, final String fileName,
+            final String fileExtension) {
+
         final FileDto fileDto = new FileDto();
 
         fileDto.setData(fileData);

@@ -8,22 +8,20 @@ import java.util.List;
  */
 public enum UserCommandType {
 
-    QUIT("quit", "q"),
-    SHOW_ALL("all", "a"),
-    LOAD_SELECTED("select", "s"),
-    UPLOAD("upload", "u"),
-    HELP("help", "h");
-
+    QUIT("quit", "q"), SHOW_ALL("all", "a"), LOAD_SELECTED("select", "s"), UPLOAD("upload", "u"), HELP(
+            "help", "h");
 
     private List<String> codes = new ArrayList<>();
 
     private UserCommandType(final String... codes) {
+
         for (final String code : codes) {
             this.codes.add(code);
         }
     }
 
     public static UserCommandType fromString(final String value) {
+
         for (final UserCommandType userCommandType : UserCommandType.values()) {
             if (userCommandType.codes.contains(value)) {
                 return userCommandType;
@@ -34,6 +32,7 @@ public enum UserCommandType {
 
     @Override
     public String toString() {
+
         return this.codes.get(0);
     }
 }

@@ -9,23 +9,27 @@ import java.util.List;
 public class FileValidationResult {
 
     private List<String> errorMessages;
-    private boolean success;
+    private boolean      success;
 
     public FileValidationResult() {
+
         this.errorMessages = new ArrayList<>();
         this.success = true;
     }
 
     public void addErrorMessage(final String message) {
+
         this.errorMessages.add(message);
         this.success = false;
     }
 
     public List<String> getErrorMessages() {
+
         return this.errorMessages;
     }
 
     public boolean isSuccess() {
+
         return this.success;
     }
 }

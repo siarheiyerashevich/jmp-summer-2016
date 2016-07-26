@@ -1,9 +1,9 @@
 package com.epam.jmp.fileshare.services;
 
+import java.util.List;
+
 import com.epam.jmp.fileshare.dto.FileDto;
 import com.epam.jmp.fileshare.exceptions.FileShareException;
-
-import java.util.List;
 
 /**
  * Created by nbuny on 20.07.2016.
