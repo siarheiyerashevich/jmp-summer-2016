@@ -1,19 +1,30 @@
 package com.epam.jmp.fileshare.dao.impl;
 
-import com.epam.jmp.fileshare.dao.FileShareDao;
-import com.epam.jmp.fileshare.dto.FileDto;
-import com.epam.jmp.fileshare.exceptions.FileShareException;
-import com.epam.jmp.fileshare.util.FileShareDateFormatter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.UUID;
+
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
-import javax.annotation.PostConstruct;
-import java.io.*;
-import java.text.MessageFormat;
-import java.util.*;
+import com.epam.jmp.fileshare.dao.FileShareDao;
+import com.epam.jmp.fileshare.dto.FileDto;
+import com.epam.jmp.fileshare.exceptions.FileShareException;
+import com.epam.jmp.fileshare.util.FileShareDateFormatter;
 
 /**
  * Created by nbuny on 20.07.2016.
@@ -21,32 +32,35 @@ import java.util.*;
 @Repository
 public class DiskFileShareDaoImpl implements FileShareDao {
 
-    private static final String NAME_PROPERTY_POSTFIX = ".name";
-    private static final String EXTENSION_PROPERTY_POSTFIX = ".extension";
-    private static final String EXPIRATION_PROPERTY_POSTFIX = ".expiration";
+    private static final String NAME_PROPERTY_POSTFIX          = ".name";
+    private static final String EXTENSION_PROPERTY_POSTFIX     = ".extension";
+    private static final String EXPIRATION_PROPERTY_POSTFIX    = ".expiration";
 
-    private static final String PROPERTY_FILE_EXTENSION = ".properties";
-    private static final String REPOSITORY_LOCATION = "repositoryLocation";
-    private static final String REPOSITORY_NAME = "repositoryName";
+    private static final String PROPERTY_FILE_EXTENSION        = ".properties";
+    private static final String REPOSITORY_LOCATION            = "repositoryLocation";
+    private static final String REPOSITORY_NAME                = "repositoryName";
     private static final String DEFAULT_FILE_EXPIRATION_PERIOD = "defaultFileExpirationPeriod";
     @Autowired
     @Qualifier("disk-dao.properties")
-    private Properties defaultRepositoryProperties;
-    private Properties repositoryProperties;
+    private Properties          defaultRepositoryProperties;
+    private Properties          repositoryProperties;
 
-    private String repositoryLocation;
-    private String repositoryName;
-    private int defaultFileExpirationPeriod;
+    private String              repositoryLocation;
+    private String              repositoryName;
+    private int                 defaultFileExpirationPeriod;
 
     @PostConstruct
     private void init() throws FileShareException {
-        if (this.defaultRepositoryProperties == null || CollectionUtils.isEmpty(this.defaultRepositoryProperties.values())) {
+
+        if (this.defaultRepositoryProperties == null
+                || CollectionUtils.isEmpty(this.defaultRepositoryProperties.values())) {
             throw new FileShareException("Repository Properties not exists");
         }
 
         this.repositoryLocation = this.defaultRepositoryProperties.getProperty(REPOSITORY_LOCATION);
         this.repositoryName = this.defaultRepositoryProperties.getProperty(REPOSITORY_NAME);
-        this.defaultFileExpirationPeriod = Integer.valueOf(this.defaultRepositoryProperties.getProperty(DEFAULT_FILE_EXPIRATION_PERIOD));
+        this.defaultFileExpirationPeriod = Integer.valueOf(this.defaultRepositoryProperties
+                .getProperty(DEFAULT_FILE_EXPIRATION_PERIOD));
 
         final File repository = new File(getRepositoryPath());
         if (!repository.exists()) {
@@ -80,6 +94,7 @@ public class DiskFileShareDaoImpl implements FileShareDao {
 
         final File repositoryFolder = new File(getRepositoryPath());
         final String[] repositoryUuids = repositoryFolder.list(new FilenameFilter() {
+
             @Override
             public boolean accept(final File dir, final String name) {
 
@@ -87,6 +102,7 @@ public class DiskFileShareDaoImpl implements FileShareDao {
             }
 
             private boolean isUUID(final String name) {
+
                 try {
                     UUID.fromString(name);
                     return true;
@@ -99,7 +115,9 @@ public class DiskFileShareDaoImpl implements FileShareDao {
         final List<FileDto> result = new ArrayList<>(repositoryUuids.length);
         for (final String repositoryUuid : repositoryUuids) {
             final FileDto dto = getFileDto(repositoryUuid);
-            result.add(dto);
+            if (new Date().before(dto.getExpirationDate())) {
+                result.add(dto);
+            }
         }
 
         return result;
@@ -122,7 +140,8 @@ public class DiskFileShareDaoImpl implements FileShareDao {
             final byte[] fileData = IOUtils.toByteArray(fis);
             dto.setData(fileData);
         } catch (final Exception ex) {
-            throw new FileShareException(MessageFormat.format("Failed to get file data for {0}", uuid), ex);
+            throw new FileShareException(MessageFormat.format("Failed to get file data for {0}",
+                    uuid), ex);
         } finally {
             IOUtils.closeQuietly(fis);
         }
@@ -133,48 +152,68 @@ public class DiskFileShareDaoImpl implements FileShareDao {
     @Override
     public void saveFile(final FileDto fileDto) throws FileShareException {
 
-        FileOutputStream fos = null;
+        FileOutputStream fileOutputStream = null;
+        FileOutputStream propertyOutputStream = null;
+
         try {
             final String storedFileKey = UUID.randomUUID().toString();
             final String storedFilePath = getRepositoryPath() + File.separator + storedFileKey;
             final File storedFile = new File(storedFilePath);
             storedFile.createNewFile();
-            fos = new FileOutputStream(storedFile);
-            fos.write(fileDto.getData());
-            IOUtils.closeQuietly(fos);
+            fileOutputStream = new FileOutputStream(storedFile);
+            fileOutputStream.write(fileDto.getData());
 
+            this.repositoryProperties.setProperty(storedFileKey + NAME_PROPERTY_POSTFIX, fileDto
+                    .getName());
+            this.repositoryProperties.setProperty(storedFileKey + EXTENSION_PROPERTY_POSTFIX,
+                    fileDto.getExtension());
+            this.repositoryProperties.setProperty(storedFileKey + EXPIRATION_PROPERTY_POSTFIX,
+                    FileShareDateFormatter.format(getFileExpirationDate()));
+            propertyOutputStream = new FileOutputStream(getRepositoryPropertiesPath());
+            this.repositoryProperties.store(propertyOutputStream, null);
 
-            this.repositoryProperties.setProperty(storedFileKey + NAME_PROPERTY_POSTFIX, fileDto.getName());
-            this.repositoryProperties.setProperty(storedFileKey + EXTENSION_PROPERTY_POSTFIX, fileDto.getExtension());
-            this.repositoryProperties.setProperty(storedFileKey + EXPIRATION_PROPERTY_POSTFIX, FileShareDateFormatter.format(new Date()));
-            fos = new FileOutputStream(getRepositoryPropertiesPath());
-            this.repositoryProperties.store(fos, null);
-            IOUtils.closeQuietly(fos);
         } catch (final IOException ex) {
-            throw new FileShareException(MessageFormat.format("Failed to save file {0}.{1}", fileDto.getName(), fileDto.getExtension()), ex);
+            throw new FileShareException(MessageFormat.format("Failed to save file {0}", fileDto
+                    .getName()), ex);
         } finally {
-            IOUtils.closeQuietly(fos);
+            IOUtils.closeQuietly(fileOutputStream);
+            IOUtils.closeQuietly(propertyOutputStream);
         }
     }
 
+    private Date getFileExpirationDate() {
+
+        final Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.DAY_OF_MONTH, this.defaultFileExpirationPeriod);
+        return calendar.getTime();
+    }
+
     private String getRepositoryPath() {
+
         return this.repositoryLocation + File.separator + this.repositoryName;
     }
 
     private String getRepositoryPropertiesPath() {
+
         return getRepositoryPath() + File.separator + this.repositoryName + PROPERTY_FILE_EXTENSION;
     }
 
     private FileDto getFileDto(String repositoryUuid) throws FileShareException {
+
         try {
             final FileDto dto = new FileDto();
-            dto.setName(this.repositoryProperties.getProperty(repositoryUuid + NAME_PROPERTY_POSTFIX));
-            dto.setExtension(this.repositoryProperties.getProperty(repositoryUuid + EXTENSION_PROPERTY_POSTFIX));
-            dto.setExpirationDate(FileShareDateFormatter.parse(this.repositoryProperties.getProperty(repositoryUuid + EXPIRATION_PROPERTY_POSTFIX)));
+            dto.setName(this.repositoryProperties.getProperty(repositoryUuid
+                    + NAME_PROPERTY_POSTFIX));
+            dto.setExtension(this.repositoryProperties.getProperty(repositoryUuid
+                    + EXTENSION_PROPERTY_POSTFIX));
+            dto.setExpirationDate(FileShareDateFormatter.parse(this.repositoryProperties
+                    .getProperty(repositoryUuid + EXPIRATION_PROPERTY_POSTFIX)));
             dto.setUuid(repositoryUuid);
             return dto;
         } catch (final Exception ex) {
-            throw new FileShareException(MessageFormat.format("Failed to get properties for {0}", repositoryUuid), ex);
+            throw new FileShareException(MessageFormat.format("Failed to get properties for {0}",
+                    repositoryUuid), ex);
         }
     }
 }

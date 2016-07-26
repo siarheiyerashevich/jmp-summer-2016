@@ -14,5 +14,5 @@ public interface FileShareService {
 
     FileDto loadFile(final String uuid) throws FileShareException;
 
-    void saveFile(final byte[] fileData, final String fileName, final String fileExtension) throws FileShareException;
+    void saveFile(final FileDto fileDto) throws FileShareException;
 }

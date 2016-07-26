@@ -1,4 +1,4 @@
-package com.epam.jmp.fileshare.util;
+package com.epam.jmp.fileshare.commands;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Created by nbuny on 21.07.2016.
  */
-public enum UserCommand {
+public enum UserCommandType {
 
     QUIT("quit", "q"),
     SHOW_ALL("all", "a"),
@@ -17,16 +17,16 @@ public enum UserCommand {
 
     private List<String> codes = new ArrayList<>();
 
-    private UserCommand(final String... codes) {
+    private UserCommandType(final String... codes) {
         for (final String code : codes) {
             this.codes.add(code);
         }
     }
 
-    public static UserCommand fromString(final String value) {
-        for (final UserCommand userCommand : UserCommand.values()) {
-            if (userCommand.codes.contains(value)) {
-                return userCommand;
+    public static UserCommandType fromString(final String value) {
+        for (final UserCommandType userCommandType : UserCommandType.values()) {
+            if (userCommandType.codes.contains(value)) {
+                return userCommandType;
             }
         }
         return null;
