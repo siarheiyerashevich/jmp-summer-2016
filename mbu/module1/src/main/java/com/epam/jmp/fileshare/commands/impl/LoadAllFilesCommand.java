@@ -26,12 +26,15 @@ public class LoadAllFilesCommand implements UserCommand {
                 System.out.println(">Be first who upload new file. try to use "
                         + UserCommandType.UPLOAD);
             }
-            for (final FileDto file : files) {
-                System.out.println(MessageFormat.format(
-                        ">{0}.{1} will expire in {2}. link for download: {3}", file.getName(), file
-                                .getExtension(), FileShareDateFormatter.format(file
-                                .getExpirationDate()), file.getUuid()));
-            }
+            files.forEach(file ->
+
+            System.out.println(MessageFormat.format(
+                    ">{0}.{1} will expire in {2}. link for download: {3}", file.getName(), file
+                            .getExtension(), FileShareDateFormatter
+                            .format(file.getExpirationDate()), file.getUuid()))
+
+            );
+
         } catch (FileShareException e) {
             System.out.println(e.getMessage());
         }

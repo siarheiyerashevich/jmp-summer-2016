@@ -8,8 +8,11 @@ import java.util.List;
  */
 public enum UserCommandType {
 
-    QUIT("quit", "q"), SHOW_ALL("all", "a"), LOAD_SELECTED("select", "s"), UPLOAD("upload", "u"), HELP(
-            "help", "h");
+    QUIT("quit", "q"), //
+    SHOW_ALL("all", "a"), //
+    LOAD_SELECTED("select", "s"), //
+    UPLOAD("upload", "u"), //
+    HELP("help", "h");
 
     private List<String> codes = new ArrayList<>();
 

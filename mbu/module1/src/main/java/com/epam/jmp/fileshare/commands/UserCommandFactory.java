@@ -1,5 +1,8 @@
 package com.epam.jmp.fileshare.commands;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.epam.jmp.fileshare.commands.impl.DownloadFileCommand;
 import com.epam.jmp.fileshare.commands.impl.HelpCommand;
 import com.epam.jmp.fileshare.commands.impl.LoadAllFilesCommand;
@@ -11,27 +14,24 @@ import com.epam.jmp.fileshare.commands.impl.UploadFileCommand;
  */
 public class UserCommandFactory {
 
+    private static Map<UserCommandType, UserCommand> commandMap = new HashMap<>();
+
+    static {
+        commandMap.put(UserCommandType.HELP, new HelpCommand());
+        commandMap.put(UserCommandType.LOAD_SELECTED, new DownloadFileCommand());
+        commandMap.put(UserCommandType.QUIT, new QuitCommand());
+        commandMap.put(UserCommandType.SHOW_ALL, new LoadAllFilesCommand());
+        commandMap.put(UserCommandType.UPLOAD, new UploadFileCommand());
+    }
+
     public static UserCommand getCommandByType(final UserCommandType commandType) {
 
         if (commandType == null) {
             System.out.println(">Unrecognized command ");
             System.out.println(">Try to use:");
             return new HelpCommand();
-        }
-
-        switch (commandType) {
-        case HELP:
-            return new HelpCommand();
-        case LOAD_SELECTED:
-            return new DownloadFileCommand();
-        case QUIT:
-            return new QuitCommand();
-        case SHOW_ALL:
-            return new LoadAllFilesCommand();
-        case UPLOAD:
-            return new UploadFileCommand();
-        default:
-            return null;
+        } else {
+            return commandMap.get(commandType);
         }
     }
 }
